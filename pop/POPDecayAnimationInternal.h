@@ -107,6 +107,21 @@ struct _POPDecayAnimationState : _POPPropertyAnimationState
     decay_position(toValue->data(), velocity.data(), valueCount, duration, deceleration);
     toVec = toValue;
   }
+    
+    void computeDeceleration() {
+        VectorRef targetVec = toVec;
+        computeToValue();
+        
+        double fromValue = fromVec->data()[0];
+        double toValue = toVec->data()[0];
+        double targetValue = targetVec->data()[0];
+        
+        double inverseScalar = (targetValue - fromValue) / (toValue - fromValue);
+        deceleration = powf(deceleration, 1.0 / inverseScalar);
+        
+        computeDuration();
+        computeToValue();
+    }
 
   bool advance(CFTimeInterval time, CFTimeInterval dt, id obj) {
     // advance past not yet initialized animations

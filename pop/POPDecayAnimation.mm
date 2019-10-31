@@ -9,6 +9,8 @@
 
 #import "POPDecayAnimationInternal.h"
 
+#import <cmath>
+
 #if TARGET_OS_IPHONE
 #import <UIKit/UIKit.h>
 #endif
@@ -70,8 +72,13 @@ DEFINE_RW_PROPERTY(POPDecayAnimationState, deceleration, setDeceleration:, CGFlo
 
 - (void)setToValue:(id)aValue
 {
-  // no-op
-  NSLog(@"ignoring to value on decay animation %@", self);
+    if (__state->valueCount != 1) {
+        // no-op
+        NSLog(@"ignoring to value on decay animation %@", self);
+        return;
+    }
+    super.toValue = aValue;
+    [self _computeDeceleration];
 }
 
 - (id)reversedVelocity
@@ -167,6 +174,11 @@ DEFINE_RW_PROPERTY(POPDecayAnimationState, deceleration, setDeceleration:, CGFlo
 {
   __state->toVec = NULL;
   __state->duration = 0;
+}
+
+- (void)_computeDeceleration
+{
+    __state->computeDeceleration();
 }
 
 - (void)_appendDescription:(NSMutableString *)s debug:(BOOL)debug
